@@ -1,0 +1,15 @@
+# Python and Jupyter
+__pycache__/
+.ipynb_checkpoints/
+*.pyc
+.venv/
+
+# Passwords and keys
+.env
+
+# Data files (provided by the unit, not shared)
+data/*.csv
+
+# Computer system files
+.DS_Store
+Thumbs.db
