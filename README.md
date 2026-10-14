@@ -37,7 +37,7 @@ A reliable hourly forecast helps the operator decide **when to move bikes betwee
 
 ## Model results
 
-![R² score comparison across models](images/model_comparison.png)
+![R² score comparison across models](https://github.com/hill526/bike-sharing-demand-forecasting/blob/main/all_images/features.png)
 
 | Model | R² |
 |---|---|
