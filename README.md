@@ -2,7 +2,7 @@
 
 Forecasting hourly bike rentals in London so a bike-sharing operator can have the right number of bikes in the right place at the right time.
 
-![Average bike rentals per hour, weekday vs weekend](new_cnt_by_hours.png)
+![Average bike rentals per hour, weekday vs weekend](https://github.com/hill526/bike-sharing-demand-forecasting/blob/main/all_images/new_cnt_by_hours.png)
 
 *Weekdays have two sharp commuter peaks: about 3,800 rentals per hour at 8 AM and 3,200 at 5 PM. Weekends rise slowly to one afternoon peak of about 2,200 at 3 PM.*
 
