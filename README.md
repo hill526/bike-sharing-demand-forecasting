@@ -2,7 +2,8 @@
 
 Forecasting hourly bike rentals in London, so a bike-sharing operator can have the right number of bikes in the right place at the right time.
 
-![Average rentals by hour, weekday vs weekend](images/rentals_by_hour.png)
+![Average rentals by hour, weekday vs weekend](<img width="846" height="547" alt="cnt by hour" src="https://github.com/user-attachments/assets/c6d846e1-5be2-44d4-a4eb-d32999bf049e" />
+)
 
 *On weekdays, demand has two sharp commuter peaks (8 AM and 5–6 PM). On weekends, it rises slowly to one afternoon peak.*
 
