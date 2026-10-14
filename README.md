@@ -56,7 +56,7 @@ Two results were important along the way:
 
 ### What the model relies on
 
-![Permutation feature importance of the optimised Gradient Boosting model](images/feature_importance.png)
+![Permutation feature importance of the optimised Gradient Boosting model](https://github.com/hill526/bike-sharing-demand-forecasting/blob/main/all_images/features.png)
 
 To check *why* the model makes its predictions, I randomly shuffled one feature at a time and measured how much the test R² dropped. The bigger the drop, the more the model depends on that feature.
 
