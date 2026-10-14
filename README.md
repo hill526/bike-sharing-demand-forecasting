@@ -2,16 +2,15 @@
 
 Forecasting hourly bike rentals in London, so a bike-sharing operator can have the right number of bikes in the right place at the right time.
 
-![Average rentals by hour, weekday vs weekend](<img width="846" height="547" alt="cnt by hour" src="https://github.com/user-attachments/assets/c6d846e1-5be2-44d4-a4eb-d32999bf049e" />
-)
+![Average bike rentals per hour, weekday vs weekend](images/rentals_by_hour.png)
 
-*On weekdays, demand has two sharp commuter peaks (8 AM and 5–6 PM). On weekends, it rises slowly to one afternoon peak.*
+*Weekdays have two sharp commuter peaks: about 3,800 rentals per hour at 8 AM and 3,200 at 5 PM. Weekends rise slowly to one afternoon peak of about 2,200 at 3 PM.*
 
 ---
 
 ## Why this project
 
-A bike-sharing operator faces two costly problems. If there are too few bikes at a station during the morning rush, customers can't ride and may not come back. If there are too many bikes sitting unused at night, the company is paying to maintain and move bikes nobody needs.
+A bike-sharing operator faces two costly problems. If there are too few bikes at a station during the morning rush, customers can't ride and may not come back. If too many bikes sit unused at night, the company is paying to maintain and move bikes nobody needs.
 
 A reliable hourly forecast helps the operator decide **when to move bikes between stations, when to schedule maintenance, and when to run promotions.**
 
@@ -19,44 +18,53 @@ A reliable hourly forecast helps the operator decide **when to move bikes betwee
 
 - **Source:** [London Bike Sharing Dataset](https://www.kaggle.com/datasets/hmavrodiev/london-bike-sharing-dataset) on Kaggle, created by Hristo Mavrodiev from Transport for London open data
 - **Size:** 17,414 hourly records, January 2015 to January 2017
-- **Features:** time of day, weekday/weekend, public holiday, season, actual temperature, "feels like" temperature, humidity, wind speed, and weather condition
+- **Features:** time of day, weekday/weekend, public holiday, season, actual temperature, "feels like" temperature, humidity, wind speed and weather condition
 - **Target:** `cnt`, the number of new bike rentals in each hour
 
 ## Approach
 
 1. **Data quality check:** checked for missing values, duplicates and unrealistic values (e.g. humidity above 100%).
-2. **Feature preparation:** extracted hour, day, month and year from the timestamp, converted season codes into names, and one-hot encoded categories such as weather condition.
-3. **Exploratory analysis:** compared rentals across hours, days, seasons and weather conditions to find the main demand drivers.
-4. **Modelling:** compared four regression models: Linear Regression, Decision Tree, Random Forest and Gradient Boosting.
-5. **Evaluation:** measured performance with R², RMSE and MAE on a held-out test set. Tree pruning settings were tuned with cross-validation on the training data only, so the test set stayed unseen until the final check.
+2. **Feature preparation:** extracted hour, day, month and year from the timestamp, grouped hours into time-of-day periods, and encoded categories such as season.
+3. **Exploratory analysis:** compared rentals across hours, weekdays and weekends, seasons and weather conditions to find the main demand drivers.
+4. **Modelling:** compared Linear Regression, Decision Tree (base and pruned), Random Forest and Gradient Boosting, then tuned the best model.
+5. **Evaluation:** measured R², RMSE and MAE on a held-out test set, and used permutation importance to see which features the final model relies on.
 
 ## Key findings
 
-- **Time of day matters most.** Weekday rentals peak at around **3,800 bikes per hour at 8 AM** and **3,200 at 5 PM**, compared with about **50 per hour at 3 AM**.
-- **Weekends follow a different pattern.** Instead of commuter peaks, demand rises steadily to around **2,100–2,200 bikes per hour between 2 PM and 4 PM**, which suggests leisure trips.
-- **Warmer weather means more riders.** Average hourly rentals rise from about **630 below 5°C** to about **2,300 at 20–25°C**.
-- **Rain cuts demand.** Rainy hours average roughly **40% fewer** rentals than clear hours.
-- **Summer is the busiest season**, and winter is the quietest (around 1,460 vs 820 rentals per hour on average).
-
-![Average rentals by temperature](images/rentals_vs_temperature.png)
+- **Time of day is the biggest driver.** On weekdays, demand jumps from about **50 rentals per hour at 3–4 AM** to about **3,800 at 8 AM**, then peaks again at about **3,200 at 5 PM**. These are commuter trips.
+- **Weekends follow a completely different pattern.** There are no commuter peaks. Instead, demand rises steadily to about **2,200 rentals per hour at 3 PM**, which suggests leisure trips.
+- **Weather matters, but much less than time.** Warmer, drier hours have more rentals: average demand rises from about **630 per hour below 5°C** to about **2,300 at 20–25°C**, and rainy hours have roughly **40% fewer** rentals than clear hours. But the model shows that *when* someone rides matters far more than the weather.
 
 ## Model results
 
-| Model | R² | RMSE | MAE |
-|---|---|---|---|
-| Linear Regression | 0.22 | 967 | 703 |
-| Decision Tree (pruned) | 0.91 | 325 | 210 |
-| Random Forest | 0.94 | 261 | 138 |
-| **Gradient Boosting** | **0.95** | **255** | 143 |
+![R² score comparison across models](images/model_comparison.png)
 
-**Gradient Boosting performed best.** It explains about 95% of the variation in hourly demand, and its predictions are typically off by around **255 bikes per hour**. For context, the average hour has around 1,150 rentals, and peak hours have more than 3,000.
+| Model | R² |
+|---|---|
+| Linear Regression | 0.22 |
+| Decision Tree (base) | 0.90 |
+| Decision Tree (pruned) | 0.91 |
+| Random Forest (base) | 0.94 |
+| **Gradient Boosting (optimised)** | **0.95** |
+
+**The optimised Gradient Boosting model performed best.** It explains about 95% of the variation in hourly demand, and its predictions are typically off by about **[RMSE] bikes per hour**. For context, the average hour has around 1,150 rentals, and peak hours have more than 3,000.
 
 Two results were important along the way:
 
 - **Linear regression did poorly (R² = 0.22)** because it can only fit straight-line relationships, and demand doesn't follow a straight line over the day.
-- **The unpruned decision tree overfit.** It scored a perfect R² of 1.00 on the training data but only 0.90 on the test data. Pruning the tree, and then moving to ensemble models, fixed this.
+- **The base decision tree overfit.** It scored a perfect R² of 1.00 on the training data but 0.90 on the test data. Pruning helped a little, and ensemble models helped much more.
 
-![Feature importance of the best model](images/feature_importance.png)
+### What the model relies on
+
+![Permutation feature importance of the optimised Gradient Boosting model](images/feature_importance.png)
+
+To check *why* the model makes its predictions, I randomly shuffled one feature at a time and measured how much the test R² dropped. The bigger the drop, the more the model depends on that feature.
+
+- **Hour of day** is by far the most important feature. Without it, the model falls apart.
+- **Weekend vs weekday** comes second, which matches the two different daily patterns in the first chart.
+- **Temperature and humidity** add a little. Wind speed, season and "feels like" temperature add almost nothing once hour and temperature are known.
+
+So the business takeaway is clear: **plan the fleet around the daily schedule first, then adjust for the weather.**
 
 ## Explained simply
 
@@ -68,17 +76,17 @@ Two results were important along the way:
 
 ## Recommendations
 
-1. **Rebalance bikes before 7 AM on weekdays.** Make sure stations near homes are full before the 8 AM peak, and stations near offices have free docks.
-2. **Schedule maintenance in the quiet hours** (late night and early morning), when demand is lowest and fewer bikes are needed.
-3. **Combine the forecast with weather forecasts.** Plan a larger fleet on warm, dry days and a smaller one on cold or rainy days.
-4. **Run promotions in off-peak periods**, such as winter or weekday midday, to use bikes that would otherwise sit idle.
+1. **Rebalance bikes before 7 AM on weekdays.** Make sure stations near homes are full before the 8 AM peak, and stations near offices have free docks. Repeat before 4 PM for the evening peak.
+2. **Use a different plan on weekends.** Demand builds slowly toward the afternoon, so focus on leisure areas such as parks and the riverside from late morning.
+3. **Schedule maintenance between midnight and 5 AM**, when demand is lowest.
+4. **Adjust for weather on top of the schedule.** Plan a larger fleet on warm, dry days and a smaller one on cold or rainy days, and use off-peak promotions in winter.
 
 ## Limitations & next steps
 
 - The data covers **one city and two years**, so patterns may differ in other cities or in later years.
 - The model predicts **total demand across London**, not demand at each station, which is what rebalancing crews need most.
 - Events such as concerts, strikes or public transport disruptions aren't in the data, but they can change demand a lot.
-- **Next steps:** add station-level data, test time-series models, and include event data.
+- **Next steps:** add station-level data, test on a later time period to check real forecasting ability, and include event data.
 
 ## How I used AI tools
 
