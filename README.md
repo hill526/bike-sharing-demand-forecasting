@@ -1,6 +1,6 @@
 # London Bike-Sharing Demand Forecasting
 
-Forecasting hourly bike rentals in London, so a bike-sharing operator can have the right number of bikes in the right place at the right time.
+Forecasting hourly bike rentals in London so a bike-sharing operator can have the right number of bikes in the right place at the right time.
 
 ![Average bike rentals per hour, weekday vs weekend](new_cnt_by_hours.png)
 
